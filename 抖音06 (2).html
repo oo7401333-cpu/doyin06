@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>抖音钻石充值引导页</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { background:#f9fbff; font-family:Arial, sans-serif; margin:0; padding:20px; text-align:center; }
+    .container { max-width:600px; margin:auto; background:#fff; padding:20px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.1); }
+    h1 { color:#2c3e50; font-size:24px; }
+    p { font-size:16px; color:#34495e; line-height:1.6; }
+    button { margin-top:15px; padding:12px 20px; background:#ff2c55; border:none; border-radius:6px; color:#fff; font-size:16px; cursor:pointer; width:100%; }
+    button:hover { background:#e01b45; }
+    .copied { color:green; font-size:14px; display:none; margin-top:10px; }
+    .retry { margin-top:20px; color:#e74c3c; font-size:16px; }
+    .steps { display:flex; justify-content:space-between; margin:20px 0; }
+    .step { flex:1; padding:10px; border-bottom:4px solid #ccc; position:relative; font-size:14px; }
+    .step.active { border-color:#ff2c55; color:#ff2c55; font-weight:bold; }
+    .step::after { content:""; position:absolute; right:-2px; top:50%; transform:translateY(-50%); width:4px; height:4px; background:#ccc; border-radius:50%; }
+    .step:last-child::after { display:none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>抖音钻石充值引导页</h1>
+    <div class="steps">
+      <div class="step active" id="step1">复制账号</div>
+      <div class="step" id="step2">跳转充值</div>
+      <div class="step" id="step3">粘贴账号</div>
+      <div class="step" id="step4">选择金额</div>
+      <div class="step" id="step5">支付完成</div>
+    </div>
+
+    <h2>当前充值账号</h2>
+    <p id="dyAccount">93936226477</p>
+    <button onclick="copyAccount()">📋 一键复制账号并跳转</button>
+    <div class="copied" id="copyStatus">✅ 已复制成功！正在跳转...</div>
+
+    <div class="retry" id="retryNotice" style="display:none;">
+      ⚠️ 未能自动跳转，请手动打开抖音App，在【我 → 钱包 → 钻石充值】中完成操作。
+    </div>
+  </div>
+
+  <script>
+    // 账号轮询
+    const accounts = ["93936226477","42455772393","83541525931"];
+    let currentIndex = 0;
+    function rotateAccount(){
+      currentIndex = (currentIndex+1) % accounts.length;
+      document.getElementById("dyAccount").textContent = accounts[currentIndex];
+    }
+    setInterval(rotateAccount, 5000);
+
+    // 步骤高亮
+    function setStep(stepId){
+      document.querySelectorAll(".step").forEach(s => s.classList.remove("active"));
+      document.getElementById(stepId).classList.add("active");
+    }
+
+    // 复制并自动跳转
+    function copyAccount() {
+      const account = document.getElementById("dyAccount").textContent;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(account).then(() => {
+          document.getElementById("copyStatus").style.display = "block";
+          setStep("step2");
+          goToDouyin(); // 复制成功后立即跳转
+        }).catch(() => { alert("复制失败，请手动复制"); });
+      }
+    }
+
+    // 自动跳转抖音
+    function goToDouyin() {
+      const isMobile = /iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent);
+      if (isMobile) {
+        setStep("step3");
+        // 直接尝试拉起抖音App
+        window.location.href = "snssdk1128://webview?url=https://www.douyin.com/pay";
+        // 如果失败，8秒后提示兜底
+        setTimeout(() => {
+          document.getElementById("retryNotice").style.display = "block";
+          setStep("step4");
+        }, 8000);
+      } else {
+        alert("请在手机浏览器中打开此页面以完成充值");
+      }
+    }
+  </script>
+</body>
+</html>
