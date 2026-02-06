@@ -18,6 +18,7 @@
     .step.active { border-color:#ff2c55; color:#ff2c55; font-weight:bold; }
     .step::after { content:""; position:absolute; right:-2px; top:50%; transform:translateY(-50%); width:4px; height:4px; background:#ccc; border-radius:50%; }
     .step:last-child::after { display:none; }
+    a.jump-link { display:block; margin-top:15px; color:#ff2c55; font-size:16px; text-decoration:none; }
   </style>
 </head>
 <body>
@@ -36,8 +37,13 @@
     <button onclick="copyAccount()">📋 一键复制账号并跳转</button>
     <div class="copied" id="copyStatus">✅ 已复制成功！正在跳转...</div>
 
+    <a class="jump-link" href="snssdk1128://webview?url=https://www.douyin.com/pay">
+      👉 如果未自动跳转，请点击这里唤起抖音
+    </a>
+
     <div class="retry" id="retryNotice" style="display:none;">
-      ⚠️ 未能自动跳转，请手动打开抖音App，在【我 → 钱包 → 钻石充值】中完成操作。
+      ⚠️ 未能自动跳转，请手动打开抖音App，在【我 → 钱包 → 钻石充值】中完成操作。<br>
+      或者直接访问 <a href="https://www.douyin.com/pay" target="_blank">网页版充值页</a>
     </div>
   </div>
 
@@ -74,13 +80,14 @@
       const isMobile = /iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent);
       if (isMobile) {
         setStep("step3");
-        // 直接尝试拉起抖音App
+        // 尝试拉起抖音App
         window.location.href = "snssdk1128://webview?url=https://www.douyin.com/pay";
-        // 如果失败，8秒后提示兜底
+        // 兜底：2秒后跳转网页版
         setTimeout(() => {
+          window.location.href = "https://www.douyin.com/pay";
           document.getElementById("retryNotice").style.display = "block";
           setStep("step4");
-        }, 8000);
+        }, 2000);
       } else {
         alert("请在手机浏览器中打开此页面以完成充值");
       }
